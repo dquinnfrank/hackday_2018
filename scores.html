@@ -1,0 +1,59 @@
+<html>
+
+<head>
+	<title>Inventory Game High Scores</title>
+</head>
+
+<body>
+	<h1>Inventory Game High Scores</h1>
+
+	<table>
+	  <tr>
+	    <th>Player</th>
+	    <th>Score</th>
+	  </tr>
+	  <tr>
+	    <td id='player_1'></td>
+	    <td id='score_1'></td>
+	  </tr>
+	  <tr>
+	    <td id='player_2'></td>
+	    <td id='score_2'></td>
+	  </tr>
+	  <tr>
+	    <td id='player_3'></td>
+	    <td id='score_3'></td>
+	  </tr>
+	  <tr>
+	    <td id='player_4'></td>
+	    <td id='score_4'></td>
+	  </tr>
+	  <tr>
+	    <td id='player_5'></td>
+	    <td id='score_5'></td>
+	  </tr>
+	</table>
+
+</body>
+
+<script>
+	fetch('http://localhost:5001/scores', {method : 'GET'})
+			.then(function(response) {
+				return response.json()
+			})
+			.then(function(response){
+			console.log(response)
+			response = JSON.parse(response)
+
+			for(i = 0; i < response.length; i++)
+			{
+				console.log(response[i])
+				target_name = "player_" + (i+1)
+				target_score = "score_" + (i+1)
+				document.getElementById(target_name).innerHTML = response[i]['name']
+				document.getElementById(target_score).innerHTML = response[i]['score']
+			}
+			})
+</script>
+
+</html>

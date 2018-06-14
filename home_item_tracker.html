@@ -1,0 +1,88 @@
+<html>
+
+<head>
+	<title>Home Item Inventory</title>
+</head>
+
+<body>
+	<h1>Home Inventory, Now With Fun</h1>
+	<form action="javascript:get_items()">
+		<img src="small_receipt_no_logo.jpg" height="600" alt="The receipt">
+		<br></br>
+		<input type="submit" value="Submit">
+	</form>
+	<br></br>
+	<h2>Items</h2>
+	<img src="" id="tagged_image" height="400" alt="Tagged Receipt">
+
+	<h3>Known Items</h3>
+	<div id="known_items"></div>
+
+	<h3>Label These for Extra Points!</h3>
+	<div id="unknown_items"></div>
+</body>
+
+<script>
+
+	// Sends a new label to the server
+	function send_label(element, unlabeled_name, unlabeled_p)
+	{
+		label = document.getElementById(element).value
+
+		document.getElementById(unlabeled_p).innerHTML += "   <span style='color: blue'>+10</span>"
+
+		fetch('http://localhost:5001/scores', {method : 'PUT'})
+
+		fetch('http://localhost:5001/update', {method : 'PUT', headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({unlabeled: unlabeled_name, labeled: label})})
+	}
+
+	// Sends the image and other info to the server
+	function get_items()
+	{
+
+		fetch('http://localhost:5001/itemizer', {method : 'GET'})
+			.then(function(response) {
+				return response.json()
+			})
+			.then(function(response_json) {
+				document.getElementById("tagged_image").src="detected_no_logo.jpg";
+
+				response_items = JSON.parse(response_json)
+				console.log(response_items)
+
+				total_value = 0
+				for(i = 0; i < response_items.length; i++)
+				{
+					item = response_items[i]
+
+					total_value += item['value']
+
+					// Adding innerHTML is a security problem, use Nodes instead
+					if (item['found'])
+					{
+						div = document.getElementById("known_items")
+						div.innerHTML += "<p>Added: (" + item['original_name'] + ") "+ item['name'] +" <span style='color: green'>+1</span></p>"
+					}
+
+					else
+					{
+						button_name = "submit_" + i
+						console.log("send_label('submit_' ,'" + item['name'] + "')")
+						div = document.getElementById("unknown_items")
+						div.innerHTML += `<p id="`+ 'name_' + i + `">` + item['name'] +`</p>\n` + `<input type="submit" value="Label It" style="float: right" onclick="send_label('`+'submit_' + i+`', item['name'], '`+'name_' + i +`')" />
+								<div style="overflow: hidden; padding-right: .5em;">
+   								<input id="`+ button_name + `" type="text" value=" "/>
+								</div>`
+					}
+				}
+			})
+
+	}
+</script>
+
+</html>
+
